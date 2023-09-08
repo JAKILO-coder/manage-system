@@ -1,11 +1,27 @@
 import logo from '@/assets/logo.png'
 import './index.scss'
-import { Card, Form, Input, Button, Checkbox} from 'antd'
+import { Card, Form, Input, Button, Checkbox, message} from 'antd'
+import { useStore } from '@/store'
+import {useNavigate} from 'react-router-dom'
 
 function Login(){
-  function onFinish (values){
+  const {loginStore} = useStore()
+  const navigate = useNavigate()
+  async function onFinish (values){
     console.log(values)
-    
+    try {
+      await loginStore.getToken({
+        mobile: values.username,
+        code: values.password
+      })
+      // 跳转首页
+      navigate('/', {replace: true})
+      // 提示用户
+      message.success('登陆成功')
+    } catch (error) {
+      message.error(error.response?.data?.message || '登录失败')
+    }
+     
   }
   function onFinishFailed (errorInfo){
     console.log('Failed:', errorInfo);
@@ -18,6 +34,8 @@ function Login(){
         <Form validateTrigger={['onBlur', 'onChange']}
           initialValues={{
             remember: true,
+            username: '13811111111',
+            password: '246810'
           }}
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
